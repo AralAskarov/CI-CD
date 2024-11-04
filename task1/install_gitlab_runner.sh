@@ -77,3 +77,9 @@ curl --location "https://deb.nodesource.com/setup_20.x" | sudo bash -
 sudo apt-get install -y nodejs
 
 sudo npm install --global yarn
+
+# 6. System user for gitlab
+
+sudo adduser --disabled-login --gecos 'GitLab' git
+
+
