@@ -72,6 +72,7 @@ ruby -v
 # 3. Rubygems
 gem update --system
 
+cd ~
 # 5. Node. 20.x releases and yarn 1.22.x (2 is not supported)
 curl --location "https://deb.nodesource.com/setup_20.x" | sudo bash -
 sudo apt-get install -y nodejs
@@ -80,6 +81,24 @@ sudo npm install --global yarn
 
 # 6. System user for gitlab
 
+cd ~
 sudo adduser --disabled-login --gecos 'GitLab' git
 
+# 7. Database postgres 14.x+
+cd ~
+sudo apt install -y postgresql postgresql-client libpq-dev postgresql-contrib
+psql --version
+sudo service postgresql start
+sudo service postgresql status
+sudo -u postgres psql -d template1 -c "CREATE USER git CREATEDB;"
+# pg_term. btree_gist, plpsql extensions
+sudo -u postgres psql -d template1 -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+sudo -u postgres psql -d template1 -c "CREATE EXTENSION IF NOT EXISTS btree_gist;"
+sudo -u postgres psql -d template1 -c "CREATE EXTENSION IF NOT EXISTS plpgsql;"
+
+sudo -u postgres psql -d template1 -c "CREATE DATABASE gitlabhq_production OWNER git;"
+# check if extensions are enable
+sudo -u postgres psql -d gitlabhq_production -c "SELECT true AS enabled FROM pg_available_extensions WHERE name = 'pg_trgm' AND installed_version IS NOT NULL;"
+sudo -u postgres psql -d gitlabhq_production -c "SELECT true AS enabled FROM pg_available_extensions WHERE name = 'btree_gist' AND installed_version IS NOT NULL;"
+sudo -u postgres psql -d gitlabhq_production -c "SELECT true AS enabled FROM pg_available_extensions WHERE name = 'pgjwt' AND installed_version IS NOT NULL;"
 
