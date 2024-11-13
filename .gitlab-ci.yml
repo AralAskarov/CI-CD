@@ -4,10 +4,12 @@ services:
   - docker:dind
 
 stages:
-  - test
   - build
   - deploy
+  - moniroting
+  - remediation
   - notify
+  
 
 variables:
   TELEGRAM_API_URL: "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage"
@@ -29,7 +31,7 @@ build_docker_registry_job:
   stage: build
   script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
-    - docker build -f ./task2/days_to_new_year/Dockerfile -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker build -f ./days_to_new_year/Dockerfile -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
     - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA $DOCKER_IMAGE:latest
     - docker push $DOCKER_IMAGE:latest
@@ -72,6 +74,51 @@ deploy_job:
   artifacts:
     paths:
       - $SUMMARY_FILE
+
+monitoring_job:
+  stage: monitoring
+  script: 
+    - apk add --no-cache curl
+    - HTTP_CODE=$(ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST 'curl -o /dev/null -s -w "%{http_code}\n" $DEPLOYED_SERVICE_URL')
+    - |
+      if [ "$HTTP_CODE" -eq 200 ]; then
+        echo "Monitoring stage: ✅ Success" >> $SUMMARY_FILE
+      else
+        echo "Monitoring stage: ❌ Failure" >> $SUMMARY_FILE
+      fi
+  only:
+    refs:
+      - master
+      - /^release-.*$/
+    changes:
+      - '**/*.py'
+      - '**/Dockerfile'
+  artifacts:
+    paths:
+      - $SUMMARY_FILE
+
+
+remediation_job:
+  stage: remediation
+  script:
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "sudo systemctl restart new-year"
+  when: on_failure
+  needs:
+    - monitoring
+  after_script:
+    - |
+      echo "Remediation stage done ✅" >> $SUMMARY_FILE
+  only:
+    refs:
+      - master
+      - /^release-.*$/
+    changes:
+      - '**/*.py'
+      - '**/Dockerfile'
+  artifacts:
+    paths:
+      - $SUMMARY_FILE
+
 
 notify_summary:
   stage: notify
