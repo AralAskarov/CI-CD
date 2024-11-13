@@ -52,7 +52,7 @@ build_docker_registry_job:
 deploy_job:
   stage: deploy
   script:
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST 'docker pull registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest'
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST 'docker pull arala/daystonewyear'
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "sudo systemctl restart myapi"
   after_script:
     - |
