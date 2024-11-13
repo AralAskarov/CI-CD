@@ -12,7 +12,7 @@ stages:
 variables:
   TELEGRAM_API_URL: "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage"
   SUMMARY_FILE: "pipeline_summary.txt"
-  DOCKER_IMAGE: "arala/daysToNewYear"
+  DOCKER_IMAGE: "arala/daystonewyear"
 
 before_script:
   - apk add --no-cache openssh-client
