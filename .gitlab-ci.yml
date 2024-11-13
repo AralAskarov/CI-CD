@@ -23,9 +23,11 @@ build_docker_registry_job:
     - docker push registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest
   after_script:
     - echo "Build stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE
-  only:
-    - master
-    - /^release-.*$/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^release-.*$/'
+      changes:
+        - '**/*.py'
+        - Dockerfile
   changes:
     - '**/*.py'
     - Dockerfile
@@ -45,9 +47,6 @@ deploy_job:
   only:
     - master
     - /^release-.*$/
-  changes:
-    - '**/*.py'
-    - Dockerfile
   artifacts:
     paths:
       - $SUMMARY_FILE
@@ -67,9 +66,6 @@ notify_summary:
   only:
     - master
     - /^release-.*$/
-  changes:
-    - '**/*.py'
-    - Dockerfile
   artifacts:
     paths:
       - $SUMMARY_FILE
