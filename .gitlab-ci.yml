@@ -1,3 +1,8 @@
+image: docker:20.10.16
+
+services:
+  - docker:dind
+
 stages:
   - test
   - build
@@ -7,9 +12,11 @@ stages:
 variables:
   TELEGRAM_API_URL: "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage"
   SUMMARY_FILE: "pipeline_summary.txt"
+  DOCKER_HOST: tcp://docker:2375  # Подключение к демону Docker
+  DOCKER_TLS_CERTDIR: ""  
 
 before_script:
-  - apt-get update -y && apt-get install openssh-client -y
+  - apk add --no-cache openssh-client
   - eval $(ssh-agent -s)
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
   - mkdir -p ~/.ssh
