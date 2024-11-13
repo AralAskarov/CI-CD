@@ -104,7 +104,7 @@ remediation_job:
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "sudo systemctl restart new-year"
   when: on_failure
   needs:
-    - monitoring
+    - monitoring_job
   after_script:
     - |
       echo "Remediation stage done ✅" >> $SUMMARY_FILE
