@@ -28,9 +28,6 @@ build_docker_registry_job:
       changes:
         - '**/*.py'
         - Dockerfile
-  changes:
-    - '**/*.py'
-    - Dockerfile
   artifacts:
     paths:
       - $SUMMARY_FILE
