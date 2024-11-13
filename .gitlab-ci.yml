@@ -29,7 +29,7 @@ build_docker_registry_job:
   stage: build
   script:
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin 
-    - docker build -f ./days_to_new_year/Dockerfile -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - docker build -f ./task2/days_to_new_year/Dockerfile -t $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA .
     - docker push $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA
     - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA $DOCKER_IMAGE:latest
     - docker push $DOCKER_IMAGE:latest
