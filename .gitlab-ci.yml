@@ -26,6 +26,7 @@ build_docker_registry_job:
   stage: build
   script:
     - docker build -f days_to_new_year/Dockerfile -t registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest .
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
     - docker push registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest
   after_script:
     - |
