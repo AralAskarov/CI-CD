@@ -12,3 +12,4 @@ EXPOSE 8000
 
 CMD ["python", "task2/days_to_new_year/manage.py", "runserver", "0.0.0.0:8000"]
 
+

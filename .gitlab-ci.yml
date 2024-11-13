@@ -46,7 +46,7 @@ build_docker_registry_job:
       - /^release-.*$/
     changes:
       - '**/*.py'
-      - Dockerfile
+      - '**/Dockerfile'
   artifacts:
     paths:
       - $SUMMARY_FILE
@@ -67,7 +67,7 @@ deploy_job:
       - /^release-.*$/
     changes:
       - '**/*.py'
-      - Dockerfile
+      - '**/Dockerfile'
   artifacts:
     paths:
       - $SUMMARY_FILE
@@ -91,7 +91,7 @@ notify_summary:
       - /^release-.*$/
     changes:
       - '**/*.py'
-      - Dockerfile
+      - '**/Dockerfile'
   artifacts:
     paths:
       - $SUMMARY_FILE
