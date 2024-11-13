@@ -1,77 +1,14 @@
-stages:
-  - test
-  - build
-  - deploy
-  - notify
+FROM python:3.10-slim
 
-variables:
-  TELEGRAM_API_URL: "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendMessage"
-  SUMMARY_FILE: "pipeline_summary.txt"
+WORKDIR /app
 
-before_script:
-  - apt-get update -y && apt-get install openssh-client -y
-  - eval $(ssh-agent -s)
-  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+COPY requirements.txt /app/
 
-build_docker_registry_job:
-  stage: build
-  script:
-    - docker build -t registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest .
-    - docker push registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest
-  after_script:
-    - |
-      echo "Build stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^release-.*$/'
-      changes:
-        - '**/*.py'
-        - Dockerfile
-  changes:
-    - '**/*.py'
-    - Dockerfile
-  artifacts:
-    paths:
-      - $SUMMARY_FILE
+RUN pip install --no-cache-dir -r requirements.txt
 
+COPY . /app/
 
-deploy_job:
-  stage: deploy
-  script:
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST 'docker pull registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest'
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "sudo systemctl restart myapi"
-  after_script:
-    - |
-      echo "Deploy stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE
-  when: manual
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^release-.*$/'
-      changes:
-        - '**/*.py'
-        - Dockerfile
-  artifacts:
-    paths:
-      - $SUMMARY_FILE
+EXPOSE 8000
 
-notify_summary:
-  stage: notify
-  script:
-    - |
-      SUMMARY=$(cat $SUMMARY_FILE)
-      curl -s -X POST $TELEGRAM_API_URL \
-        -d chat_id="$TELEGRAM_CHANNEL_ID" \
-        -d text="Summary of pipeline for *$CI_PROJECT_NAME* on branch *$CI_COMMIT_REF_NAME*:
-        $SUMMARY
-        Pipeline: $CI_PIPELINE_URL" \
-        -d parse_mode="Markdown"
-  when: always
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^release-.*$/'
-      changes:
-        - '**/*.py'
-        - Dockerfile
-  artifacts:
-    paths:
-      - $SUMMARY_FILE
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
