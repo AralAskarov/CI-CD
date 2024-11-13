@@ -61,7 +61,8 @@ deploy_job:
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "sudo systemctl restart new-year"
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker image prune"
   after_script:
-    - if [ "$CI_JOB_STATUS" == "success" ]; then echo "Deploy stage: ✅ Success" >> $SUMMARY_FILE; else echo "Deploy stage: ❌ Failure" >> $SUMMARY_FILE; fi
+    - |
+      echo "Deploy stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE
   when: manual
   only:
     refs:
@@ -82,7 +83,8 @@ monitoring_job:
     - apk add --no-cache curl
     - HTTP_CODE=$(ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "curl -o /dev/null -s -w \"%{http_code}\" $DEPLOYED_SERVICE_URL")
     - echo "HTTP_CODE is: $HTTP_CODE" 
-    - if [ "$HTTP_CODE" -eq 200 ]; then echo "Monitoring stage: ✅ Success" >> $SUMMARY_FILE; else echo "Monitoring stage: ❌ Failure" >> $SUMMARY_FILE; fi
+    - |
+      if [ "$HTTP_CODE" -eq 200 ]; then echo "Monitoring stage: ✅ Success" >> $SUMMARY_FILE; else echo "Monitoring stage: ❌ Failure" >> $SUMMARY_FILE; fi
   only:
     refs:
       - master
