@@ -21,9 +21,9 @@ build_docker_registry_job:
   script:
     - docker build -t registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest .
     - docker push registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest
-  after_script:
-    - echo "Build stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE
-  rules:
+    after_script:
+      - 'echo "Build stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE' 
+    rules:
     - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^release-.*$/'
       changes:
         - '**/*.py'
@@ -42,7 +42,7 @@ deploy_job:
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST 'docker pull registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest'
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "sudo systemctl restart myapi"
   after_script:
-    - echo "🚀 Deploy stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE
+      - 'echo "Deploy stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE' 
   when: manual
   rules:
     - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^release-.*$/'
