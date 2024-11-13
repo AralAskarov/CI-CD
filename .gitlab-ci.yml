@@ -83,12 +83,7 @@ monitoring_job:
     - apk add --no-cache curl
     - HTTP_CODE=$(ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "curl -o /dev/null -s -w \"%{http_code}\" $DEPLOYED_SERVICE_URL")
     - echo "HTTP_CODE is: $HTTP_CODE" 
-    - |
-      if [ "$HTTP_CODE" -eq 200 ]; then
-        echo "Monitoring stage: ✅ Success" >> $SUMMARY_FILE
-      else
-        echo "Monitoring stage: ❌ Failure" >> $SUMMARY_FILE
-      fi
+    - if [ "$HTTP_CODE" -eq 200 ]; then echo "Monitoring stage: ✅ Success" >> $SUMMARY_FILE; else echo "Monitoring stage: ❌ Failure" >> $SUMMARY_FILE; fi
   only:
     refs:
       - master
