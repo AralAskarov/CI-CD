@@ -24,11 +24,13 @@ build_docker_registry_job:
   after_script:
     - |
       echo "Build stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^release-.*$/'
-      changes:
-        - '**/*.py'
-        - Dockerfile
+  only:
+    refs:
+      - master
+      - /^release-.*$/
+    changes:
+      - '**/*.py'
+      - Dockerfile
   artifacts:
     paths:
       - $SUMMARY_FILE
@@ -43,11 +45,13 @@ deploy_job:
     - |
       echo "Deploy stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE
   when: manual
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^release-.*$/'
-      changes:
-        - '**/*.py'
-        - Dockerfile
+  only:
+    refs:
+      - master
+      - /^release-.*$/
+    changes:
+      - '**/*.py'
+      - Dockerfile
   artifacts:
     paths:
       - $SUMMARY_FILE
@@ -64,11 +68,13 @@ notify_summary:
         Pipeline: $CI_PIPELINE_URL" \
         -d parse_mode="Markdown"
   when: always
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^release-.*$/'
-      changes:
-        - '**/*.py'
-        - Dockerfile
+  only:
+    refs:
+      - master
+      - /^release-.*$/
+    changes:
+      - '**/*.py'
+      - Dockerfile
   artifacts:
     paths:
       - $SUMMARY_FILE
