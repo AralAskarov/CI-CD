@@ -25,7 +25,7 @@ before_script:
 build_docker_registry_job:
   stage: build
   script:
-    - docker build -t registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest .
+    - docker build -f days_to_new_year/Dockerfile -t registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest .
     - docker push registry.gitlab.com/mastering-ci-cd/mastering-ci-cd:latest
   after_script:
     - |
