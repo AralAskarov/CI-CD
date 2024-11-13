@@ -56,7 +56,8 @@ deploy_job:
   stage: deploy
   script:
     - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST 'docker pull arala/daystonewyear'
-    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "sudo systemctl restart myapi"
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "sudo systemctl restart new-year"
+    - ssh -i ~/.ssh/id_rsa $SSH_USER@$SSH_HOST "docker image prune"
   after_script:
     - |
       echo "Deploy stage: $(if [ "$CI_JOB_STATUS" == "success" ]; then echo "✅ Success"; else echo "❌ Failure"; fi)" >> $SUMMARY_FILE

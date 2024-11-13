@@ -10,4 +10,4 @@ def how_many_days_left(request):
     new_year = date(today.year + 1, 1 , 1)
     days_remaining = (new_year - today).days
 
-    return Response({"Дней до 2025 осталось ": days_remaining}, status=status.HTTP_200_OK)
+    return Response({"Days left until 2025 ": days_remaining}, status=status.HTTP_200_OK)
