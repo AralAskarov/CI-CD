@@ -36,12 +36,12 @@ build_docker_registry_job:
     - docker tag $DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA $DOCKER_IMAGE:latest
     - docker push $DOCKER_IMAGE:latest
   after_script:
-  - |
-    if [ "$CI_JOB_STATUS" == "success" ]; then
-      echo "Build stage: ✅ Success" >> $SUMMARY_FILE
-    else
-      echo "Build stage: ❌ Failure" >> $SUMMARY_FILE
-    fi
+    - |
+      if [ "$CI_JOB_STATUS" == "success" ]; then
+        echo "Build stage: ✅ Success" >> $SUMMARY_FILE
+      else
+        echo "Build stage: ❌ Failure" >> $SUMMARY_FILE
+      fi
   only:
     refs:
       - master
